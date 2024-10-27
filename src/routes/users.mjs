@@ -3,8 +3,7 @@ import { query, validationResult, checkSchema, matchedData } from "express-valid
 import { mockUsers } from "../utils/constants.mjs"
 import { createUserValidationSchema } from "../utils/validationSchema.mjs"
 import { findusermiddleware } from "../utils/middleware.mjs"
-import { User } from "../mongoose/schemas/user.mjs"
-import { hashPassword } from "../utils/helpers.mjs"
+import { createUserHandler, getUserByIdHandler } from "../handlers/users.mjs"
 
 const router = Router()
 
@@ -36,42 +35,9 @@ router.get('/api/users',
     return response.send(mockUsers)
 })
 
-router.get('/api/users/:id',(request,response)=>{
-    console.log(request.params)
-    const parseId = parseInt(request.params.id)
-    console.log(parseId)
-    if(isNaN(parseId)){
-        return response.status(400).send({msg:'Bad Request'})
-    }
-    const finduser = mockUsers.find((user)=> user.id === parseId)
-    if(!finduser) return response.status(404).send({msg:'user does not exist'})
-    console.log(mockUsers)
-    return response.send(finduser)
-})
+router.get('/api/users/:id',findusermiddleware,getUserByIdHandler)
 
-router.post('/api/users',
-    checkSchema(createUserValidationSchema),
-    async (request, response) => {
-        const result = validationResult(request);
-        
-        if (!result.isEmpty()) {
-            return response.status(400).send({ errors: result.array() });
-        } else {
-            const data = matchedData(request);
-            console.log(data);
-            data.password = hashPassword(data.password)
-            console.log(data)
-            const newUser = new User(data);
-            try {
-                const savedUser = await newUser.save();
-                return response.status(201).send(savedUser);
-            } catch (err) {
-                console.log(err);
-                return response.status(400).send({ error: 'Failed to save user' });
-            }
-        }
-    }
-);
+router.post('/api/users',checkSchema(createUserValidationSchema),createUserHandler);
 
 
 // put request
