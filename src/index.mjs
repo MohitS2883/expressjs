@@ -8,6 +8,7 @@ import mongoose from "mongoose";
 import passport from "passport";
 import MongoStore from "connect-mongo";
 import "./strategies/local-strategy.mjs"
+import { User } from "./mongoose/schemas/user.mjs";
 
 const app = express()
 
@@ -19,12 +20,13 @@ app.use(express.json())
 app.use(session({
     secret: 'all hail the tiger',
     saveUninitialized: false,
-    resave: false,
+    resave: true,
     cookie: {
         maxAge: 1000 * 60 * 60 * 24
     },
     store: MongoStore.create({
-        mongoUrl:'mongodb://localhost:27017/expresstut'
+        // mongoUrl:'mongodb://localhost:27017/expresstut'
+        client:mongoose.connection.getClient()
     })
 })) // before registering the endpoints
 app.use(passport.initialize())
@@ -36,9 +38,10 @@ app.post('/api/auth',passport.authenticate('local'),(request,response)=>{
     response.sendStatus(200)
 })
 
-app.get('/api/auth/status',(request,response)=>{
+app.get('/api/auth/status',async (request,response)=>{
     console.log(request.user)
     console.log(request.session)
+    console.log(request.sessionID)
     return request.user ? response.send(request.user) : response.sendStatus(401)
 })
 
