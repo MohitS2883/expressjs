@@ -1,5 +1,5 @@
 export const createUserValidationSchema = {
-    name:{
+    username:{
         isLength: {
             options:{
                 min: 5,
@@ -14,12 +14,34 @@ export const createUserValidationSchema = {
             errorMessage:"Must be a string"
         } 
     },
-    age:{
+    displayName:{
+        isLength: {
+            options:{
+                min: 5,
+                max: 32
+            },
+            errorMessage:"Minimum of 5, maximum of 32 characters"
+        },
         notEmpty: {
             errorMessage:"Username cannot be empty"
         },
-        isNumeric: {
-            errorMessage:"Must be a number"
+        isString: {
+            errorMessage:"Must be a string"
         } 
-    }
+    },
+    password:{
+        isLength: {
+            options:{
+                min: 5,
+                max: 32
+            },
+            errorMessage:"Minimum of 5, maximum of 32 characters"
+        },
+        notEmpty: {
+            errorMessage:"Username cannot be empty"
+        },
+        isString: {
+            errorMessage:"Must be a string"
+        } 
+    },
 }
