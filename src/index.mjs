@@ -6,6 +6,7 @@ import session from "express-session";
 import { mockUsers } from "./utils/constants.mjs";
 import mongoose from "mongoose";
 import passport from "passport";
+import MongoStore from "connect-mongo";
 import "./strategies/local-strategy.mjs"
 
 const app = express()
@@ -21,7 +22,10 @@ app.use(session({
     resave: false,
     cookie: {
         maxAge: 1000 * 60 * 60 * 24
-    }
+    },
+    store: MongoStore.create({
+        mongoUrl:'mongodb://localhost:27017/expresstut'
+    })
 })) // before registering the endpoints
 app.use(passport.initialize())
 app.use(passport.session())
@@ -60,6 +64,11 @@ app.get('/',loggingmiddleware,(request, response)=>{
     response.cookie('Hello','World',{maxAge:30000,signed:true})
     response.status(201).send({msg:'Hello'})
 })
+app.get('/test-session', (req, res) => {
+    req.session.test = 'Session is active';
+    res.send('Session test endpoint hit.');
+});
+
 
 // session duration of user on a website
 // http is stateless
