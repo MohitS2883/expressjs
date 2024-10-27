@@ -1,14 +1,14 @@
 import express, { request, response } from "express";
 import router from "./routes/index.mjs";
-import { findusermiddleware, loggingmiddleware } from "./utils/middleware.mjs";
+import { loggingmiddleware } from "./utils/middleware.mjs";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import { mockUsers } from "./utils/constants.mjs";
 import mongoose from "mongoose";
 import passport from "passport";
 import MongoStore from "connect-mongo";
-import "./strategies/local-strategy.mjs"
-import { User } from "./mongoose/schemas/user.mjs";
+import "./strategies/discord-strategy.mjs"
+// import "./strategies/local-strategy.mjs"
 
 const app = express()
 
@@ -20,7 +20,7 @@ app.use(express.json())
 app.use(session({
     secret: 'all hail the tiger',
     saveUninitialized: false,
-    resave: true,
+    resave: false,
     cookie: {
         maxAge: 1000 * 60 * 60 * 24
     },
@@ -53,6 +53,14 @@ app.post('/api/auth/logout',(request,response)=>{
     })
 })
 
+app.get('/api/auth/discord',passport.authenticate('discord'))
+app.get('/api/auth/discord/redirect',passport.authenticate('discord'),
+(request,response)=>{
+    console.log(request.session)
+    console.log(request.user)
+    response.sendStatus(200)
+
+})
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT,()=>{
@@ -101,4 +109,6 @@ app.get('/test-session', (req, res) => {
 //     return request.session.user ? response.status(200).send(request.session.user):
 //     response.status(401).send({msg:"BAD CREDENTIALS"})
 // })
-
+// discord client secret: jFMwhDm98PNU6cxgV6gXmiSK19qPSZlz
+// clientid:1300040013018304613
+// redirect url:https://localhost:3000/api/auth/discord/redirect
